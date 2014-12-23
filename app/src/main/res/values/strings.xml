@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">PhoneCallDemo</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">HRS Phone Map</string>
     <string name="action_settings">Settings</string>
-    <string name="make_call">Call Home</string>
+    <string name="make_call">Call</string>
+    <string name="invalid_block">Please enter a valid block number.
+    Block number ranges from 01 to 16.</string>
+    <string name="invalid_flat">Please enter a valid flat number.</string>
 
 </resources>
