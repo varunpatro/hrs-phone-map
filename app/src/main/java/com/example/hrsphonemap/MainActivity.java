@@ -74,20 +74,27 @@ public class MainActivity extends Activity {
         EditText block_text = (EditText)findViewById(R.id.block);
         EditText flat_text = (EditText)findViewById(R.id.flat);
         TextView display_text = (TextView)findViewById(R.id.display);
-
-        int block = Integer.parseInt(block_text.getText().toString());
-        int flat = Integer.parseInt(flat_text.getText().toString());
         String message = "Block and Flat both valid.";
 
-        if (block > 16) {
-            message = getString(R.string.invalid_block);
+        if (block_text.getText().toString().matches("")) {
+            message = "Please enter the block number";
+        } else if (flat_text.getText().toString().matches("")) {
+            message = "Please enter the flat number";
         } else {
-            if (flat < 100) {
-                message = "Invalid flat number. Please enter a valid flat number.";
+            int block = Integer.parseInt(block_text.getText().toString());
+            int flat = Integer.parseInt(flat_text.getText().toString());
+
+
+            if (block > 16) {
+                message = getString(R.string.invalid_block);
+            } else {
+                if (flat < 100) {
+                    message = "Invalid flat number. Please enter a valid flat number.";
+                }
+                else if (!validate_flat(block, flat)) {
+                    message = "Flat " + flat + " does not exist in Block " + block + ".";
+                };
             }
-            else if (!validate_flat(block, flat)) {
-                message = "Flat " + flat + " does not exist in Block " + block + ".";
-            };
         }
 
         display_text.setText(message);
