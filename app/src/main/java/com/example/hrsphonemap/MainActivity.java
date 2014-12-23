@@ -1,5 +1,6 @@
 package com.example.hrsphonemap;
 
+import android.app.DownloadManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
@@ -16,8 +17,12 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -126,31 +131,35 @@ public class MainActivity extends Activity {
 //        validate_all_input();
 
         final TextView display_text = (TextView)findViewById(R.id.display);
-//        display_text.setText(connect("http://vpatro.me:3000/get"));
 //        display_text.setText(res);
 
         // Instantiate the RequestQueue.
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//        String url ="http://vpatro.me:3000/get";
-//
-//// Request a string response from the provided URL.
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-//                new Response.Listener() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        // Display the first 500 characters of the response string.
-//                        display_text.setText("Response is: "+ response.substring(0,500));
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                display_text.setText("That didn't work!");
-//            }
-//        });
-//// Add the request to the RequestQueue.
-//        queue.add(stringRequest);
+        RequestQueue queue = Volley.newRequestQueue(this);
+        final String url = "http://vpatro.me:3000/get";
 
+//      prepare the Request
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        Log.d("Response", response.toString());
+                        display_text.setText(response.toString());
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                        display_text.setText(error.toString());
+                    }
+                }
+        );
 
+//      add it to the RequestQueue
+        queue.add(getRequest);
 
 
 
