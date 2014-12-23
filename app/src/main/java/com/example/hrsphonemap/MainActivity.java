@@ -12,6 +12,23 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+
 
 public class MainActivity extends Activity {
 
@@ -61,16 +78,14 @@ public class MainActivity extends Activity {
         }
     }
 
-
-
-    protected void makeCall() {
-        Log.i("Make call", "");
-
+    private void set_data() {
         set_phone_number(11, 104, 9966004458L);
         set_phone_number(11, 503, 9505878874L);
         set_phone_number(11, 204, 9963042902L);
         set_phone_number(8, 901, 9963732901L);
+    }
 
+    private void validate_all_input() {
         EditText block_text = (EditText)findViewById(R.id.block);
         EditText flat_text = (EditText)findViewById(R.id.flat);
         TextView display_text = (TextView)findViewById(R.id.display);
@@ -84,25 +99,65 @@ public class MainActivity extends Activity {
             int block = Integer.parseInt(block_text.getText().toString());
             int flat = Integer.parseInt(flat_text.getText().toString());
 
-
             if (block > 16) {
                 message = getString(R.string.invalid_block);
             } else {
                 if (flat < 100) {
                     message = "Invalid flat number. Please enter a valid flat number.";
-                }
-                else if (!validate_flat(block, flat)) {
+                } else if (!validate_flat(block, flat)) {
                     message = "Flat " + flat + " does not exist in Block " + block + ".";
-                };
+                }
+                ;
             }
         }
 
         display_text.setText(message);
 
+    }
 
-//        display_text.setText(R.string.invalid_block);
 
 
+
+
+    protected void makeCall() {
+        Log.i("Make call", "");
+
+        set_data();
+//        validate_all_input();
+
+        final TextView display_text = (TextView)findViewById(R.id.display);
+//        display_text.setText(connect("http://vpatro.me:3000/get"));
+//        display_text.setText(res);
+
+        // Instantiate the RequestQueue.
+//        RequestQueue queue = Volley.newRequestQueue(this);
+//        String url ="http://vpatro.me:3000/get";
+//
+//// Request a string response from the provided URL.
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+//                new Response.Listener() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        // Display the first 500 characters of the response string.
+//                        display_text.setText("Response is: "+ response.substring(0,500));
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                display_text.setText("That didn't work!");
+//            }
+//        });
+//// Add the request to the RequestQueue.
+//        queue.add(stringRequest);
+
+
+
+
+
+
+
+
+//
 //        String tel = "";
 //        if (true) {
 //            tel = "tel:0" + get_phone_number(block, flat);
@@ -110,10 +165,10 @@ public class MainActivity extends Activity {
 //
 //        Intent phoneIntent = new Intent(Intent.ACTION_CALL);
 //        phoneIntent.setData(Uri.parse(tel));
-
-
-
-
+//
+//
+//
+//
 //        try {
 //            startActivity(phoneIntent);
 //            finish();
