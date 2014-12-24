@@ -1,6 +1,5 @@
 package com.example.hrsphonemap;
 
-import android.app.DownloadManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
@@ -24,7 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Iterator;
 
 
 public class MainActivity extends Activity {
@@ -48,6 +46,8 @@ public class MainActivity extends Activity {
             }
         });
 
+
+
     }
 
     //Variable to handle text fields in the main design
@@ -61,11 +61,11 @@ public class MainActivity extends Activity {
 
     public void set_phone_number(int block_num, int flat_num, int tel_num, long number) {
         int i = flat_to_index(flat_num);
-        this.phone_numbers[block_num][i][tel_num] = number;
+        this.phone_numbers[block_num][i][tel_num ] = number;
     }
 
     public long get_phone_number(int a, int b, int c) {
-        return this.phone_numbers[a][flat_to_index(b)][c-1];
+        return this.phone_numbers[a][flat_to_index(b)][c];
     }
 
     public boolean validate_flat(int block, int flat) {
@@ -82,12 +82,12 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void set_data() {
-        set_phone_number(11, 104, 1, 9966004458L);
-        set_phone_number(11, 503, 1, 9505878874L);
-        set_phone_number(11, 204, 1, 9963042902L);
-        set_phone_number(8, 901, 1, 9963732901L);
-    }
+//    private void set_data() {
+//        set_phone_number(11, 104, 1, 9966004458L);
+//        set_phone_number(11, 503, 1, 9505878874L);
+//        set_phone_number(11, 204, 1, 9963042902L);
+//        set_phone_number(8, 901, 1, 9963732901L);
+//    }
 
     private String validate_all_input(int block, int flat) {
 
@@ -106,6 +106,7 @@ public class MainActivity extends Activity {
 
     private String parse(JSONObject obj) {
         String temp = "Sync Complete";
+//        temp = "";
 
         try {
             for(int i = 0; i < obj.names().length(); i++){
@@ -119,6 +120,7 @@ public class MainActivity extends Activity {
                             long tel_no = tel_array.getLong(z);
                             set_phone_number(block_num, flat_num, z, tel_no);
                         }
+
                     }
 
 
@@ -152,9 +154,9 @@ public class MainActivity extends Activity {
                     public void onResponse(JSONObject response) {
                         // display response
                         Log.d("Response", response.toString());
-//                        display_text.setText(response.toString());
+                        display_text.setText(response.toString());
                         display_text.setText(parse(response));
-                        display_text.setText("Sync complete.");
+//                        display_text.setText("Sync complete.");
                         btn.setEnabled(true);
                     }
                 },
@@ -177,10 +179,7 @@ public class MainActivity extends Activity {
     }
 
     private void call(int block, int flat, int tel_num) {
-        String tel = "";
-        if (true) {
-            tel = "tel:0" + get_phone_number(block, flat, tel_num);
-        }
+        String tel = "tel:0" + get_phone_number(block, flat, tel_num);
 
         Intent phoneIntent = new Intent(Intent.ACTION_CALL);
         phoneIntent.setData(Uri.parse(tel));
@@ -202,17 +201,23 @@ public class MainActivity extends Activity {
     protected void makeCall() {
         Log.i("Make call", "");
 
-        View call_btn = findViewById(R.id.makeCall);
-        View tel_btn1 = findViewById(R.id.tel1);
-        View tel_btn2 = findViewById(R.id.tel2);
-        View tel_btn3 = findViewById(R.id.tel3);
+        final View call_btn = findViewById(R.id.makeCall);
+        final View back_btn = findViewById(R.id.backBtn);
+        final Button tel_btn1 = (Button) findViewById(R.id.tel1);
+        final Button tel_btn2 = (Button) findViewById(R.id.tel2);
+        final Button tel_btn3 = (Button) findViewById(R.id.tel3);
+
+        View tel_btns[] = new View[3];
+        tel_btns[0] = tel_btn1;
+        tel_btns[1] = tel_btn2;
+        tel_btns[2] = tel_btn3;
+
+
 
 
         EditText block_text = (EditText)findViewById(R.id.block);
         EditText flat_text = (EditText)findViewById(R.id.flat);
         TextView display_text = (TextView)findViewById(R.id.display);
-        String message = "Block and Flat both valid.";
-
 
 //        set_data();
 
@@ -221,17 +226,34 @@ public class MainActivity extends Activity {
         } else if (flat_text.getText().toString().matches("")) {
             display_text.setText("Please enter the flat number");
         } else {
-            int block = Integer.parseInt(block_text.getText().toString());
-            int flat = Integer.parseInt(flat_text.getText().toString());
+            final int block = Integer.parseInt(block_text.getText().toString());
+            final int flat = Integer.parseInt(flat_text.getText().toString());
             String validation = validate_all_input(block, flat);
             if (validation.matches("")) {
-                if ((get_phone_number(block, flat, 1) == 0) && get_phone_number(block, flat, 2) == 0 && get_phone_number(block, flat, 3) == 0) {
+                if ((get_phone_number(block, flat, 0) == 0) && get_phone_number(block, flat, 1) == 0 && get_phone_number(block, flat, 2) == 0) {
                     display_text.setText("No phone number registered in this house.");
                 } else {
-                    call_btn.setVisibility(View.GONE);
-                    for (int count = 1; count <= 3; count++) {
+                    display_text.setText("");
+                    back_btn.setVisibility(View.VISIBLE);
+                    back_btn.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View view) {
+                            call_btn.setVisibility(View.VISIBLE);
+                            back_btn.setVisibility(View.INVISIBLE);
+                            tel_btn1.setVisibility(View.INVISIBLE);
+                            tel_btn2.setVisibility(View.INVISIBLE);
+                            tel_btn3.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    call_btn.setVisibility(View.INVISIBLE);
+                    for (int count = 0; count < 3; count++) {
                         if (get_phone_number(block, flat, count) != 0) {
-                            tel_btn1.setVisibility(View.VISIBLE);
+                            final int temp = count;
+                            tel_btns[count].setVisibility(View.VISIBLE);
+                            tel_btns[count].setOnClickListener(new View.OnClickListener() {
+                                public void onClick(View view) {
+                                    call(block, flat, temp);
+                                }
+                            });
                         }
                     }
 //                    call(block, flat, 1);
