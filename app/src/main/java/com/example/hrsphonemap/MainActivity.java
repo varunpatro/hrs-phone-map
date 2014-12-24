@@ -18,21 +18,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
+import java.util.Iterator;
 
 
 public class MainActivity extends Activity {
@@ -46,6 +38,13 @@ public class MainActivity extends Activity {
         startBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 makeCall();
+            }
+        });
+
+        Button syncBtn = (Button) findViewById(R.id.sync);
+        syncBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                sync();
             }
         });
 
@@ -105,8 +104,33 @@ public class MainActivity extends Activity {
          }
     }
 
-    private void sync() {
+    private String parse(JSONObject obj) {
+        String temp = "Sync Complete";
+
+        try {
+            for(int i = 0; i < obj.names().length(); i++){
+                int block_num = Integer.parseInt(obj.names().getString(i));
+                JSONObject block_obj = obj.getJSONObject(obj.names().getString(i));
+                for(int j = 0; j < block_obj.length(); j++){
+                    int flat_num = Integer.parseInt(block_obj.names().getString(j));
+                    long tel_no = block_obj.getLong(block_obj.names().getString(j));
+                    set_phone_number(block_num, flat_num, tel_no);
+
+                }
+            }
+
+        } catch (JSONException ex) {
+            temp = ex.toString();
+        }
+        return temp;
+
+    }
+
+    protected void sync() {
         final TextView display_text = (TextView)findViewById(R.id.display);
+        final Button btn = (Button) findViewById(R.id.makeCall);
+        btn.setEnabled(false);
+        display_text.setText("Syncing...");
 //        display_text.setText(res);
 
         // Instantiate the RequestQueue.
@@ -121,7 +145,10 @@ public class MainActivity extends Activity {
                     public void onResponse(JSONObject response) {
                         // display response
                         Log.d("Response", response.toString());
-                        display_text.setText(response.toString());
+//                        display_text.setText(response.toString());
+                        display_text.setText(parse(response));
+                        display_text.setText("Sync complete.");
+                        btn.setEnabled(true);
                     }
                 },
                 new Response.ErrorListener()
@@ -129,13 +156,16 @@ public class MainActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
-                        display_text.setText(error.toString());
+                        display_text.setText("Error: " + "Cannot connect to server.");
+                        btn.setEnabled(true);
                     }
                 }
+
         );
 
 //      add it to the RequestQueue
         queue.add(getRequest);
+
 
     }
 
@@ -171,8 +201,7 @@ public class MainActivity extends Activity {
         String message = "Block and Flat both valid.";
 
 
-        set_data();
-        sync();
+//        set_data();
 
         if (block_text.getText().toString().matches("")) {
             display_text.setText("Please enter the block number");
@@ -183,7 +212,11 @@ public class MainActivity extends Activity {
             int flat = Integer.parseInt(flat_text.getText().toString());
             String validation = validate_all_input(block, flat);
             if (validation.matches("")) {
-                call(block, flat);
+                if (get_phone_number(block, flat) == 0) {
+                    display_text.setText("No phone number registered in this house.");
+                } else {
+                    call(block, flat);
+                }
             } else {
                 display_text.setText(validation);
             }

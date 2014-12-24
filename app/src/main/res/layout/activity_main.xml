@@ -8,6 +8,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/top_center"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="HIRISPORA SECURITY"
         android:id="@+id/title_line_1"
@@ -34,19 +42,23 @@
         android:layout_centerHorizontal="true" />
 
     <EditText android:id="@+id/block"
-        android:width="135dp"
+        android:width="125dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="Block"
         android:inputType="number"
         android:layout_weight="0.11"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:textSize="50dp"
-        android:layout_marginTop="60dp"
+        android:textSize="65dp"
+        android:layout_marginTop="62dp"
+        android:maxLength="2"
         android:layout_below="@+id/title_line_2"
-        android:layout_alignStart="@id/title_line_1"
-        android:maxLength="2"/>
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@id/top_center"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="20dp"
+        android:outlineProvider="bounds" />
 
     <EditText android:id="@+id/flat"
         android:width="125dp"
@@ -55,20 +67,23 @@
         android:hint=" Flat"
         android:inputType="number"
         android:layout_weight="0.11"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:textSize="50dp"
-        android:layout_alignEnd="@+id/title_line_1"
+        android:paddingTop="10dp"
+        android:paddingBottom="20dp"
+        android:textSize="65dp"
         android:maxLength="4"
-        android:layout_alignTop="@+id/block" />
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_alignTop="@+id/block"
+        android:layout_alignParentEnd="true"
+        android:layout_alignStart="@id/top_center" />
 
     <Button android:id="@+id/makeCall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Call"
+        android:text="CALL"
         android:layout_weight="0.19"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="49dp"
+        android:layout_marginTop="30dp"
         android:height="100dp"
         android:textSize="50dp"
         android:layout_below="@+id/block"
@@ -76,14 +91,31 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true" />
 
-    <TextView android:id="@+id/display"
+    <Button
+        android:id="@+id/sync"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_marginTop="38dp"
-        android:layout_below="@+id/makeCall"
-        android:layout_alignEnd="@+id/title_line_1"
-        android:layout_alignStart="@+id/title_line_1" />
+        android:text="SYNC"
+        android:layout_weight="0.19"
+        android:layout_gravity="center_horizontal"
+        android:height="80dp"
+        android:textSize="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:singleLine="false"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/display"
+        android:layout_above="@+id/sync"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:padding="15dp" />
 
 
 </RelativeLayout>
