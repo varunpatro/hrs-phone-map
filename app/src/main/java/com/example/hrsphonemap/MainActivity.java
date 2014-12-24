@@ -1,5 +1,6 @@
 package com.example.hrsphonemap;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
@@ -23,6 +24,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import static android.content.Context.*;
 
 
 public class MainActivity extends Activity {
@@ -43,6 +51,20 @@ public class MainActivity extends Activity {
         syncBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 sync();
+            }
+        });
+
+        Button local_readBtn = (Button) findViewById(R.id.local_read);
+        local_readBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                local_read();
+            }
+        });
+
+        Button local_deleteBtn = (Button) findViewById(R.id.local_delete);
+        local_deleteBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                local_delete();
             }
         });
 
@@ -105,6 +127,7 @@ public class MainActivity extends Activity {
     }
 
     private String parse(JSONObject obj) {
+
         String temp = "Sync Complete";
 //        temp = "";
 
@@ -155,7 +178,9 @@ public class MainActivity extends Activity {
                         // display response
                         Log.d("Response", response.toString());
                         display_text.setText(response.toString());
+                        local_store(response);
                         display_text.setText(parse(response));
+
 //                        display_text.setText("Sync complete.");
                         btn.setEnabled(true);
                     }
@@ -194,7 +219,63 @@ public class MainActivity extends Activity {
         }
     }
 
+    protected void local_read() {
+//        String data_string = "hello world!";
+        final TextView display_text = (TextView)findViewById(R.id.display);
 
+        try {
+            BufferedReader inputReader = new BufferedReader(new InputStreamReader(
+                    openFileInput("DATA_FILENAME")));
+            String inputString;
+            StringBuffer stringBuffer = new StringBuffer();
+            while ((inputString = inputReader.readLine()) != null) {
+                stringBuffer.append(inputString + "\n");
+            }
+            String data_string = stringBuffer.toString();
+
+            try {
+                JSONObject data_json = new JSONObject(data_string);
+                String parse_response = parse(data_json);
+                display_text.setText(parse_response);
+            } catch (JSONException ex) {
+                Log.i("ex: ", ex.toString());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+    }
+    protected void local_store(JSONObject data) {
+        //        String data_string = "hello world!";
+
+
+        try {
+            FileOutputStream fos = openFileOutput("DATA_FILENAME", Context.MODE_PRIVATE);
+            fos.write(data.toString().getBytes());
+            fos.close();
+        }
+        catch(Exception e) {
+            Log.i("error:"+ e, "");
+        }
+    }
+    protected void local_delete() {
+
+        try {
+            FileOutputStream fos = openFileOutput("DATA_FILENAME", Context.MODE_PRIVATE);
+            fos.write("No data".getBytes());
+            fos.close();
+            final TextView display_text = (TextView)findViewById(R.id.display);
+            display_text.setText("Database Deleted.");
+
+        }
+        catch(Exception e) {
+            Log.i("error:"+ e, "");
+        }
+    }
 
 
 
@@ -206,14 +287,13 @@ public class MainActivity extends Activity {
         final Button tel_btn1 = (Button) findViewById(R.id.tel1);
         final Button tel_btn2 = (Button) findViewById(R.id.tel2);
         final Button tel_btn3 = (Button) findViewById(R.id.tel3);
+        final View read_btn = findViewById(R.id.local_read);
+        final View delete_btn = findViewById(R.id.local_delete);
 
         View tel_btns[] = new View[3];
         tel_btns[0] = tel_btn1;
         tel_btns[1] = tel_btn2;
         tel_btns[2] = tel_btn3;
-
-
-
 
         EditText block_text = (EditText)findViewById(R.id.block);
         EditText flat_text = (EditText)findViewById(R.id.flat);
@@ -242,9 +322,13 @@ public class MainActivity extends Activity {
                             tel_btn1.setVisibility(View.INVISIBLE);
                             tel_btn2.setVisibility(View.INVISIBLE);
                             tel_btn3.setVisibility(View.INVISIBLE);
+                            read_btn.setVisibility(View.VISIBLE);
+                            delete_btn.setVisibility(View.VISIBLE);
                         }
                     });
                     call_btn.setVisibility(View.INVISIBLE);
+                    read_btn.setVisibility(View.INVISIBLE);
+                    delete_btn.setVisibility(View.INVISIBLE);
                     for (int count = 0; count < 3; count++) {
                         if (get_phone_number(block, flat, count) != 0) {
                             final int temp = count;
