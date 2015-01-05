@@ -40,6 +40,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        local_read();
+
         Button startBtn = (Button) findViewById(R.id.makeCall);
         startBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -60,6 +62,7 @@ public class MainActivity extends Activity {
                 local_read();
             }
         });
+        local_readBtn.setVisibility(View.INVISIBLE);
 
         Button local_deleteBtn = (Button) findViewById(R.id.local_delete);
         local_deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -67,7 +70,7 @@ public class MainActivity extends Activity {
                 local_delete();
             }
         });
-
+        local_deleteBtn.setVisibility(View.INVISIBLE);
 
 
     }
@@ -236,7 +239,12 @@ public class MainActivity extends Activity {
             try {
                 JSONObject data_json = new JSONObject(data_string);
                 String parse_response = parse(data_json);
-                display_text.setText(parse_response);
+                if (parse_response == "Sync Complete") {
+                    display_text.setText("Data Loaded.");
+                } else {
+                    display_text.setText("Unable to load data. Please Sync.");
+                }
+
             } catch (JSONException ex) {
                 Log.i("ex: ", ex.toString());
             }
@@ -322,13 +330,13 @@ public class MainActivity extends Activity {
                             tel_btn1.setVisibility(View.INVISIBLE);
                             tel_btn2.setVisibility(View.INVISIBLE);
                             tel_btn3.setVisibility(View.INVISIBLE);
-                            read_btn.setVisibility(View.VISIBLE);
-                            delete_btn.setVisibility(View.VISIBLE);
+//                            read_btn.setVisibility(View.VISIBLE);
+//                            delete_btn.setVisibility(View.VISIBLE);
                         }
                     });
                     call_btn.setVisibility(View.INVISIBLE);
-                    read_btn.setVisibility(View.INVISIBLE);
-                    delete_btn.setVisibility(View.INVISIBLE);
+//                    read_btn.setVisibility(View.INVISIBLE);
+//                    delete_btn.setVisibility(View.INVISIBLE);
                     for (int count = 0; count < 3; count++) {
                         if (get_phone_number(block, flat, count) != 0) {
                             final int temp = count;
