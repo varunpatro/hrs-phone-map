@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
          if (block > 16) {
              return getString(R.string.invalid_block);
          } else {
-             if (flat < 100) {
+             if (flat < 100 || (flat % 100 == 0)) {
                  return "Invalid flat number. Please enter a valid flat number.";
              } else if (!validate_flat(block, flat)) {
                  return "Flat " + flat + " does not exist in Block " + block + ".";
@@ -130,8 +130,10 @@ public class MainActivity extends Activity {
     }
 
     private String parse(JSONObject obj) {
+        Integer tel_nos = 0;
+        Integer flat_nos = 0;
 
-        String temp = "Sync Complete";
+        String temp = "";
 //        temp = "";
 
         try {
@@ -141,15 +143,15 @@ public class MainActivity extends Activity {
                 for(int j = 0; j < block_obj.length(); j++){
                     int flat_num = Integer.parseInt(block_obj.names().getString(j));
                     JSONArray tel_array = block_obj.getJSONArray(block_obj.names().getString(j));
+                    flat_nos++;
                     for(int z = 0; z < tel_array.length(); z++) {
                         if (!tel_array.getString(z).matches("")) {
                             long tel_no = tel_array.getLong(z);
                             set_phone_number(block_num, flat_num, z, tel_no);
+                            tel_nos++;
                         }
 
                     }
-
-
 
                 }
             }
@@ -157,7 +159,7 @@ public class MainActivity extends Activity {
         } catch (JSONException ex) {
             temp = ex.toString();
         }
-        return temp;
+        return temp + "" + flat_nos + " Flats with " + tel_nos + " numbers";
 
     }
 
@@ -182,7 +184,7 @@ public class MainActivity extends Activity {
                         Log.d("Response", response.toString());
                         display_text.setText(response.toString());
                         local_store(response);
-                        display_text.setText(parse(response));
+                        display_text.setText("Sync Complete." + parse(response) + " updated.");
 
 //                        display_text.setText("Sync complete.");
                         btn.setEnabled(true);
@@ -238,9 +240,9 @@ public class MainActivity extends Activity {
 
             try {
                 JSONObject data_json = new JSONObject(data_string);
-                String parse_response = parse(data_json);
-                if (parse_response == "Sync Complete") {
-                    display_text.setText("Data Loaded.");
+                if (data_string != "") {
+                    String parse_response = parse(data_json);
+                    display_text.setText("Contacts for " + parse_response + " loaded.");
                 } else {
                     display_text.setText("Unable to load data. Please Sync.");
                 }
@@ -250,7 +252,7 @@ public class MainActivity extends Activity {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            display_text.setText("Unable to load data. Please Sync.");
         }
 
 
