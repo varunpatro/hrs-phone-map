@@ -8,8 +8,8 @@ hrs-phone-map
 2. Sync
     Push call logs
     Pull contact details
-3. Extend Capability for 3 numbers per flat
-4. Offline contacts storage
+3. Extend Capability for 3 numbers per flat -- done
+4. Offline contacts storage -- done
 
 ## Web
 

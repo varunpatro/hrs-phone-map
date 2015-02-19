@@ -25,15 +25,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import static android.content.Context.*;
 
 
 public class MainActivity extends Activity {
+
+    // Variables
+
+    private static final String PORT_NUM = "5000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +77,6 @@ public class MainActivity extends Activity {
 
     }
 
-    //Variable to handle text fields in the main design
-//    public
 
     public int flat_to_index(int num) {
         return ((num / 100) - 1 ) * 4 + (num % 10);
@@ -106,13 +106,6 @@ public class MainActivity extends Activity {
             return false;
         }
     }
-
-//    private void set_data() {
-//        set_phone_number(11, 104, 1, 9966004458L);
-//        set_phone_number(11, 503, 1, 9505878874L);
-//        set_phone_number(11, 204, 1, 9963042902L);
-//        set_phone_number(8, 901, 1, 9963732901L);
-//    }
 
     private String validate_all_input(int block, int flat) {
 
@@ -168,13 +161,12 @@ public class MainActivity extends Activity {
         final Button btn = (Button) findViewById(R.id.makeCall);
         btn.setEnabled(false);
         display_text.setText("Syncing...");
-//        display_text.setText(res);
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String url = "http://vpatro.me:3000/get";
+        final String url = "http://vpatro.me:" + PORT_NUM + "/get";
 
-//      prepare the Request
+        // Prepare the Request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>()
                 {
@@ -185,8 +177,6 @@ public class MainActivity extends Activity {
                         display_text.setText(response.toString());
                         local_store(response);
                         display_text.setText("Sync Complete." + parse(response) + " updated.");
-
-//                        display_text.setText("Sync complete.");
                         btn.setEnabled(true);
                     }
                 },
@@ -240,7 +230,7 @@ public class MainActivity extends Activity {
 
             try {
                 JSONObject data_json = new JSONObject(data_string);
-                if (data_string != "") {
+                if (!data_string.equals("")) {
                     String parse_response = parse(data_json);
                     display_text.setText("Contacts for " + parse_response + " loaded.");
                 } else {
@@ -297,8 +287,6 @@ public class MainActivity extends Activity {
         final Button tel_btn1 = (Button) findViewById(R.id.tel1);
         final Button tel_btn2 = (Button) findViewById(R.id.tel2);
         final Button tel_btn3 = (Button) findViewById(R.id.tel3);
-        final View read_btn = findViewById(R.id.local_read);
-        final View delete_btn = findViewById(R.id.local_delete);
 
         View tel_btns[] = new View[3];
         tel_btns[0] = tel_btn1;

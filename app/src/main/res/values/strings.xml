@@ -7,5 +7,6 @@
     <string name="invalid_block">Please enter a valid block number.</string>
     <string name="invalid_flat">Please enter a valid flat number.</string>
     <string name="DATA_FILENAME">hrs_phone_data</string>
+    <string name="PORT_NUM">5000</string>
 
 </resources>
