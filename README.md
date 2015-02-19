@@ -1,6 +1,13 @@
 hrs-phone-map
 =============
 
+#Installation
+
+Install the [app-release.apk](https://github.com/varunpatro/hrs-phone-map/blob/master/apk/app-release.apk) in the apk folder
+
+
+
+
 #TODO
 
 ## Android
