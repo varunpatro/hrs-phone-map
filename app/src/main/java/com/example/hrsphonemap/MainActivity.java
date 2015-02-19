@@ -12,12 +12,14 @@ import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -300,6 +302,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     protected void makeCall() {
+        Toast toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 350);
+        LinearLayout linearLayout = (LinearLayout) toast.getView();
+        TextView messageTextView = (TextView) linearLayout.getChildAt(0);
+        messageTextView.setTextSize(25);
+
         Log.i("Make call", "");
 
         final View call_btn = findViewById(R.id.makeCall);
@@ -318,16 +326,19 @@ public class MainActivity extends ActionBarActivity {
         TextView display_text = (TextView)findViewById(R.id.display);
 
         if (block_text.getText().toString().matches("")) {
-            display_text.setText("Please enter the block number");
+            display_text.setText(R.string.missing_block_message);
+            toast.setText(R.string.missing_block_message);
+            toast.show();
+
         } else if (flat_text.getText().toString().matches("")) {
-            display_text.setText("Please enter the flat number");
+            display_text.setText(R.string.missing_flat_message);
         } else {
             final int block = Integer.parseInt(block_text.getText().toString());
             final int flat = Integer.parseInt(flat_text.getText().toString());
             String validation = validate_all_input(block, flat);
             if (validation.matches("")) {
                 if ((get_phone_number(block, flat, 0) == 0) && get_phone_number(block, flat, 1) == 0 && get_phone_number(block, flat, 2) == 0) {
-                    display_text.setText("No phone number registered in this house.");
+                    display_text.setText(R.string.missing_phone_number);
                 } else {
                     display_text.setText("");
                     back_btn.setVisibility(View.VISIBLE);
