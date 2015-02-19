@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -31,7 +32,7 @@ import java.io.InputStreamReader;
 
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
     // Variables
 
@@ -57,24 +58,6 @@ public class MainActivity extends Activity {
                 sync();
             }
         });
-
-        Button local_readBtn = (Button) findViewById(R.id.local_read);
-        local_readBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                local_read();
-            }
-        });
-        local_readBtn.setVisibility(View.INVISIBLE);
-
-        Button local_deleteBtn = (Button) findViewById(R.id.local_delete);
-        local_deleteBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                local_delete();
-            }
-        });
-        local_deleteBtn.setVisibility(View.INVISIBLE);
-
-
     }
 
 
