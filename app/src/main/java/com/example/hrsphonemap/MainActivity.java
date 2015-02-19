@@ -101,6 +101,12 @@ public class MainActivity extends ActionBarActivity {
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 PORT_NUM = input.getText().toString();
+                SharedPreferences settings = getPreferences(0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString("PORT_NUM", PORT_NUM);
+
+                // Commit the edits!
+                editor.commit();
                 // Do something with value!
             }
         });
@@ -236,7 +242,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void call(int block, int flat, int tel_num) {
-        String tel = "tel:0" + get_phone_number(block, flat, tel_num);
+        String tel = "tel:" + get_phone_number(block, flat, tel_num);
 
         Intent phoneIntent = new Intent(Intent.ACTION_CALL);
         phoneIntent.setData(Uri.parse(tel));
@@ -318,8 +324,6 @@ public class MainActivity extends ActionBarActivity {
         EditText flat_text = (EditText)findViewById(R.id.flat);
         TextView display_text = (TextView)findViewById(R.id.display);
 
-//        set_data();
-
         if (block_text.getText().toString().matches("")) {
             display_text.setText("Please enter the block number");
         } else if (flat_text.getText().toString().matches("")) {
@@ -341,13 +345,9 @@ public class MainActivity extends ActionBarActivity {
                             tel_btn1.setVisibility(View.INVISIBLE);
                             tel_btn2.setVisibility(View.INVISIBLE);
                             tel_btn3.setVisibility(View.INVISIBLE);
-//                            read_btn.setVisibility(View.VISIBLE);
-//                            delete_btn.setVisibility(View.VISIBLE);
                         }
                     });
                     call_btn.setVisibility(View.INVISIBLE);
-//                    read_btn.setVisibility(View.INVISIBLE);
-//                    delete_btn.setVisibility(View.INVISIBLE);
                     for (int count = 0; count < 3; count++) {
                         if (get_phone_number(block, flat, count) != 0) {
                             final int temp = count;
@@ -359,7 +359,6 @@ public class MainActivity extends ActionBarActivity {
                             });
                         }
                     }
-//                    call(block, flat, 1);
                 }
             } else {
                 display_text.setText(validation);
@@ -384,8 +383,7 @@ public class MainActivity extends ActionBarActivity {
         return true;
     }
 
-    protected void onStop(){
-        super.onStop();
+    protected void onDestroy(){
 
         // We need an Editor object to make preference changes.
         // All objects are from android.context.Context
