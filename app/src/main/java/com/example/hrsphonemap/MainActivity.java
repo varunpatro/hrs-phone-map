@@ -1,13 +1,20 @@
 package com.example.hrsphonemap;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,14 +41,19 @@ import java.io.InputStreamReader;
 
 public class MainActivity extends ActionBarActivity {
 
+
+
     // Variables
 
-    private static final String PORT_NUM = "5000";
+    private static String PORT_NUM = "5000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences settings = getPreferences(MODE_PRIVATE);
+        String PORT_NUM = settings.getString("PORT_NUM", "5000");
 
         local_read();
 
@@ -58,6 +70,48 @@ public class MainActivity extends ActionBarActivity {
                 sync();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.port_num:
+                setPORT_NUM();
+                return true;
+            case R.id.action_settings:
+//                openSettings();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    protected void setPORT_NUM() {
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Set Port Number");
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setText(PORT_NUM);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                PORT_NUM = input.getText().toString();
+                // Do something with value!
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        alert.show();
     }
 
 
@@ -245,22 +299,6 @@ public class MainActivity extends ActionBarActivity {
             Log.i("error:"+ e, "");
         }
     }
-    protected void local_delete() {
-
-        try {
-            FileOutputStream fos = openFileOutput("DATA_FILENAME", Context.MODE_PRIVATE);
-            fos.write("No data".getBytes());
-            fos.close();
-            final TextView display_text = (TextView)findViewById(R.id.display);
-            display_text.setText("Database Deleted.");
-
-        }
-        catch(Exception e) {
-            Log.i("error:"+ e, "");
-        }
-    }
-
-
 
     protected void makeCall() {
         Log.i("Make call", "");
@@ -341,8 +379,21 @@ public class MainActivity extends ActionBarActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    protected void onStop(){
+        super.onStop();
+
+        // We need an Editor object to make preference changes.
+        // All objects are from android.context.Context
+        SharedPreferences settings = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("PORT_NUM", PORT_NUM);
+
+        // Commit the edits!
+        editor.commit();
     }
 }

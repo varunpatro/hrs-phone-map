@@ -9,7 +9,12 @@
         android:title="Refresh"/>
     <item
         android:id="@+id/action_settings"
-        android:title="Settings">
+        android:title="Settings" />
+    <item
+        android:id="@+id/port_num"
+        android:title="Change Port Number">
     </item>
+
+
 
 </menu> 
