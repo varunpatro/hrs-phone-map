@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences settings = getPreferences(MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences("preferences", MODE_PRIVATE);
         String PORT_NUM = settings.getString("PORT_NUM", "5000");
 
         local_read();
@@ -101,13 +101,6 @@ public class MainActivity extends ActionBarActivity {
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 PORT_NUM = input.getText().toString();
-                SharedPreferences settings = getPreferences(0);
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString("PORT_NUM", PORT_NUM);
-
-                // Commit the edits!
-                editor.commit();
-                // Do something with value!
             }
         });
 
@@ -387,7 +380,7 @@ public class MainActivity extends ActionBarActivity {
 
         // We need an Editor object to make preference changes.
         // All objects are from android.context.Context
-        SharedPreferences settings = getPreferences(MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences("preferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("PORT_NUM", PORT_NUM);
 
