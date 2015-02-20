@@ -333,7 +333,7 @@ public class MainActivity extends ActionBarActivity {
 //        String data_string = "hello world!";
         final TextView display_text = (TextView) findViewById(R.id.display);
 
-        JSONObject data_json = file_to_JSON("DATA_FILE");
+        JSONObject data_json = file_to_JSON("DATA_FILENAME");
         if (data_json.length() == 0) {
             String parse_response = parse(data_json);
             display_text.setText("Contacts for " + parse_response + " loaded.");
