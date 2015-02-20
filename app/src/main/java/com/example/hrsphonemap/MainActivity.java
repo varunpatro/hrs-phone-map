@@ -43,19 +43,19 @@ import java.io.InputStreamReader;
 
 public class MainActivity extends ActionBarActivity {
 
-
-
     // Variables
 
     private static String PORT_NUM = "5000";
+    SharedPreferences settings;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences settings = getSharedPreferences("preferences", MODE_PRIVATE);
-        String PORT_NUM = settings.getString("PORT_NUM", "5000");
+        settings = getPreferences(MODE_PRIVATE);
+        PORT_NUM = settings.getString("PORT_NUM", PORT_NUM);
 
         local_read();
 
@@ -387,11 +387,11 @@ public class MainActivity extends ActionBarActivity {
         return true;
     }
 
-    protected void onDestroy(){
+    protected void onPause(){
+        super.onPause();
 
         // We need an Editor object to make preference changes.
         // All objects are from android.context.Context
-        SharedPreferences settings = getSharedPreferences("preferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("PORT_NUM", PORT_NUM);
 
