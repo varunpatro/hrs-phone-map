@@ -11,10 +11,10 @@ Install the [app-release.apk](https://github.com/varunpatro/hrs-phone-map/blob/m
 #TODO
 
 ## Android
-1. Create a internal call log
+1. Create a internal call log -- done
 2. Sync
-    Push call logs
-    Pull contact details
+    Push call logs -- done
+    Pull contact details -- done
 3. Extend Capability for 3 numbers per flat -- done
 4. Offline contacts storage -- done
 
@@ -23,4 +23,4 @@ Install the [app-release.apk](https://github.com/varunpatro/hrs-phone-map/blob/m
 1. Ability to upload excel file. 
     convert xls to json (or csv to json)
 2. Edit/View entries
-3. Call log view
+3. Call log view -- done
