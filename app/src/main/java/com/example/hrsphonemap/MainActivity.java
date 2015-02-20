@@ -259,6 +259,35 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    protected JSONObject file_to_JSON(String fileName) {
+        JSONObject data_json = new JSONObject();
+        try {
+            BufferedReader inputReader = new BufferedReader(new InputStreamReader(
+                    openFileInput("DATA_FILENAME")));
+            String inputString;
+            StringBuffer stringBuffer = new StringBuffer();
+            while ((inputString = inputReader.readLine()) != null) {
+                stringBuffer.append(inputString + "\n");
+            }
+            String data_string = stringBuffer.toString();
+
+            try {
+                data_json = new JSONObject(data_string);
+                return data_json;
+            } catch (JSONException ex) {
+                Log.i("ex: ", ex.toString());
+            }
+
+        } catch (IOException e) {
+            Log.i("ex: ", e.toString());
+        } finally {
+            return data_json;
+        }
+
+
+
+    }
+
     protected void local_read() {
 //        String data_string = "hello world!";
         final TextView display_text = (TextView)findViewById(R.id.display);
