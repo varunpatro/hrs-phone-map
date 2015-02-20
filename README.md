@@ -13,8 +13,9 @@ Install the [app-release.apk](https://github.com/varunpatro/hrs-phone-map/blob/m
 ## Android
 1. Create a internal call log -- done
 2. Sync
-    Push call logs -- done
-    Pull contact details -- done
+        <ul><li>Push call logs -- done
+        <li>Pull contact details -- done
+        </ul>
 3. Extend Capability for 3 numbers per flat -- done
 4. Offline contacts storage -- done
 
