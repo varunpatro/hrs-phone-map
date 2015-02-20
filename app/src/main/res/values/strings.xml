@@ -13,5 +13,6 @@
     <string name="invalid_block_message">Please enter the flat number</string>
     <string name="invalid_flat_message">Please enter the flat number</string>
     <string name="missing_phone_number">No phone number registered in this house</string>
+    <string name="CALL_LOG">call_log</string>
 
 </resources>

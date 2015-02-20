@@ -35,18 +35,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
+import java.util.Calendar;
 
 
 public class MainActivity extends ActionBarActivity {
 
     // Variables
-
-    private static String PORT_NUM = "5000";
     SharedPreferences settings;
+    private static String PORT_NUM = "5000";
+    JSONObject call_log_json;
+    Toast toast;
+    Calendar c = Calendar.getInstance();
 
 
     @Override
@@ -72,6 +77,8 @@ public class MainActivity extends ActionBarActivity {
                 sync();
             }
         });
+
+        call_log_json = file_to_JSON("CALL_LOG");
     }
 
     @Override
@@ -93,6 +100,15 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    protected void addCallEntry(String phone_num) {
+        int seconds = c.get(Calendar.SECOND);
+        try {
+            call_log_json.put(Integer.toString(seconds), phone_num);
+        } catch (JSONException e) {
+            Log.i("error: " + e, "");
         }
     }
 
@@ -124,14 +140,14 @@ public class MainActivity extends ActionBarActivity {
 
 
     public int flat_to_index(int num) {
-        return ((num / 100) - 1 ) * 4 + (num % 10);
+        return ((num / 100) - 1) * 4 + (num % 10);
     }
 
     private long[][][] phone_numbers = new long[17][42][3];
 
     public void set_phone_number(int block_num, int flat_num, int tel_num, long number) {
         int i = flat_to_index(flat_num);
-        this.phone_numbers[block_num][i][tel_num ] = number;
+        this.phone_numbers[block_num][i][tel_num] = number;
     }
 
     public long get_phone_number(int a, int b, int c) {
@@ -154,17 +170,17 @@ public class MainActivity extends ActionBarActivity {
 
     private String validate_all_input(int block, int flat) {
 
-         if (block > 16) {
-             return getString(R.string.invalid_block);
-         } else {
-             if (flat < 100 || (flat % 100 == 0)) {
-                 return "Invalid flat number. Please enter a valid flat number.";
-             } else if (!validate_flat(block, flat)) {
-                 return "Flat " + flat + " does not exist in Block " + block + ".";
-             } else {
-                 return "";
-             }
-         }
+        if (block > 16) {
+            return getString(R.string.invalid_block);
+        } else {
+            if (flat < 100 || (flat % 100 == 0)) {
+                return "Invalid flat number. Please enter a valid flat number.";
+            } else if (!validate_flat(block, flat)) {
+                return "Flat " + flat + " does not exist in Block " + block + ".";
+            } else {
+                return "";
+            }
+        }
     }
 
     private String parse(JSONObject obj) {
@@ -175,14 +191,14 @@ public class MainActivity extends ActionBarActivity {
 //        temp = "";
 
         try {
-            for(int i = 0; i < obj.names().length(); i++){
+            for (int i = 0; i < obj.names().length(); i++) {
                 int block_num = Integer.parseInt(obj.names().getString(i));
                 JSONObject block_obj = obj.getJSONObject(obj.names().getString(i));
-                for(int j = 0; j < block_obj.length(); j++){
+                for (int j = 0; j < block_obj.length(); j++) {
                     int flat_num = Integer.parseInt(block_obj.names().getString(j));
                     JSONArray tel_array = block_obj.getJSONArray(block_obj.names().getString(j));
                     flat_nos++;
-                    for(int z = 0; z < tel_array.length(); z++) {
+                    for (int z = 0; z < tel_array.length(); z++) {
                         if (!tel_array.getString(z).matches("")) {
                             long tel_no = tel_array.getLong(z);
                             set_phone_number(block_num, flat_num, z, tel_no);
@@ -202,19 +218,19 @@ public class MainActivity extends ActionBarActivity {
     }
 
     protected void sync() {
-        final TextView display_text = (TextView)findViewById(R.id.display);
+        final TextView display_text = (TextView) findViewById(R.id.display);
         final Button btn = (Button) findViewById(R.id.makeCall);
         btn.setEnabled(false);
         display_text.setText("Syncing...");
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String url = "http://vpatro.me:" + PORT_NUM + "/get";
+        final String get_url = "http://vpatro.me:" + PORT_NUM + "/get";
+        final String post_url = "http://vpatro.me:" + PORT_NUM + "/call_log";
 
         // Prepare the Request
-        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>()
-                {
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, get_url, null,
+                new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         // display response
@@ -225,8 +241,7 @@ public class MainActivity extends ActionBarActivity {
                         btn.setEnabled(true);
                     }
                 },
-                new Response.ErrorListener()
-                {
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
@@ -237,8 +252,31 @@ public class MainActivity extends ActionBarActivity {
 
         );
 
+        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, post_url, call_log_json,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        Log.d("Response", response.toString());
+                        display_text.setText(response.toString());
+//                        display_text.setText("Sync Complete." + parse(response) + " updated.");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                        display_text.setText("Error: " + "Cannot connect to server + call_log.");
+                    }
+                }
+
+        );
+
+
+
 //      add it to the RequestQueue
         queue.add(getRequest);
+        queue.add(postRequest);
 
 
     }
@@ -259,13 +297,10 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    protected void local_read() {
-//        String data_string = "hello world!";
-        final TextView display_text = (TextView)findViewById(R.id.display);
-
+    protected JSONObject file_to_JSON(String fileName) {
         try {
             BufferedReader inputReader = new BufferedReader(new InputStreamReader(
-                    openFileInput("DATA_FILENAME")));
+                    openFileInput(fileName)));
             String inputString;
             StringBuffer stringBuffer = new StringBuffer();
             while ((inputString = inputReader.readLine()) != null) {
@@ -275,41 +310,52 @@ public class MainActivity extends ActionBarActivity {
 
             try {
                 JSONObject data_json = new JSONObject(data_string);
-                if (!data_string.equals("")) {
-                    String parse_response = parse(data_json);
-                    display_text.setText("Contacts for " + parse_response + " loaded.");
-                } else {
-                    display_text.setText("Unable to load data. Please Sync.");
-                }
-
+                return data_json;
             } catch (JSONException ex) {
                 Log.i("ex: ", ex.toString());
             }
 
-        } catch (IOException e) {
+        } catch (FileNotFoundException e) {
+            try {
+                FileOutputStream fos = openFileOutput(fileName, MODE_PRIVATE);
+            } catch (Exception e1) {
+                Log.i("error: " + e1, "");
+            }
+        } catch (IOException e2) {
+            Log.i("error: " + e2, "");
+        }
+
+        return new JSONObject();
+
+    }
+
+    protected void local_read() {
+//        String data_string = "hello world!";
+        final TextView display_text = (TextView) findViewById(R.id.display);
+
+        JSONObject data_json = file_to_JSON("DATA_FILE");
+        if (data_json.length() == 0) {
+            String parse_response = parse(data_json);
+            display_text.setText("Contacts for " + parse_response + " loaded.");
+        } else {
             display_text.setText("Unable to load data. Please Sync.");
         }
 
-
-
-
     }
-    protected void local_store(JSONObject data) {
-        //        String data_string = "hello world!";
 
+    protected void local_store(JSONObject data) {
 
         try {
             FileOutputStream fos = openFileOutput("DATA_FILENAME", Context.MODE_PRIVATE);
             fos.write(data.toString().getBytes());
             fos.close();
-        }
-        catch(Exception e) {
-            Log.i("error:"+ e, "");
+        } catch (Exception e) {
+            Log.i("error:" + e, "");
         }
     }
 
     protected void makeCall() {
-        Toast toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+        toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 350);
         LinearLayout linearLayout = (LinearLayout) toast.getView();
         TextView messageTextView = (TextView) linearLayout.getChildAt(0);
@@ -328,9 +374,9 @@ public class MainActivity extends ActionBarActivity {
         tel_btns[1] = tel_btn2;
         tel_btns[2] = tel_btn3;
 
-        EditText block_text = (EditText)findViewById(R.id.block);
-        EditText flat_text = (EditText)findViewById(R.id.flat);
-        TextView display_text = (TextView)findViewById(R.id.display);
+        EditText block_text = (EditText) findViewById(R.id.block);
+        EditText flat_text = (EditText) findViewById(R.id.flat);
+        TextView display_text = (TextView) findViewById(R.id.display);
 
         if (block_text.getText().toString().matches("")) {
             display_text.setText(R.string.missing_block_message);
@@ -377,19 +423,12 @@ public class MainActivity extends ActionBarActivity {
         }
 
 
-
-
-
-
-
-
-
 //
 
     }
 
 
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
 
         // We need an Editor object to make preference changes.
