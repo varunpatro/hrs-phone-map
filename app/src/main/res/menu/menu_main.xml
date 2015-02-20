@@ -8,8 +8,8 @@
         android:icon="@drawable/ic_launcher"
         android:title="Refresh"/>
     <item
-        android:id="@+id/action_settings"
-        android:title="Settings" />
+        android:id="@+id/view_call_log"
+        android:title="View Call Logs" />
     <item
         android:id="@+id/port_num"
         android:title="Change Port Number">

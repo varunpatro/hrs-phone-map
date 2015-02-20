@@ -1,6 +1,7 @@
 package com.example.hrsphonemap;
 
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,13 +54,14 @@ public class MainActivity extends ActionBarActivity {
     private static String PORT_NUM = "5000";
     JSONObject call_log_json;
     Toast toast;
-    Calendar c = Calendar.getInstance();
+    int CURRENT_VIEW;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        CURRENT_VIEW = R.layout.activity_main;
 
         settings = getPreferences(MODE_PRIVATE);
         PORT_NUM = settings.getString("PORT_NUM", PORT_NUM);
@@ -95,18 +99,34 @@ public class MainActivity extends ActionBarActivity {
             case R.id.port_num:
                 setPORT_NUM();
                 return true;
-            case R.id.action_settings:
-//                openSettings();
+            case R.id.view_call_log:
+                setContentView(R.layout.view_call_log);
+                CURRENT_VIEW = R.layout.view_call_log;
+                TextView clb = (TextView) findViewById(R.id.call_log_box);
+                clb.setText(call_log_json.toString());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && CURRENT_VIEW == R.layout.view_call_log) {
+
+            setContentView(R.layout.activity_main);
+            CURRENT_VIEW = R.layout.activity_main;
+
+            return true;
+
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
     protected void addCallEntry(String phone_num) {
-        int seconds = c.get(Calendar.SECOND);
+        long unixTime = System.currentTimeMillis() / 1000L;
         try {
-            call_log_json.put(Integer.toString(seconds), phone_num);
+            call_log_json.put(Long.toString(unixTime), phone_num);
         } catch (JSONException e) {
             Log.i("error: " + e, "");
         }
@@ -225,18 +245,18 @@ public class MainActivity extends ActionBarActivity {
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        final String get_url = "http://vpatro.me:" + PORT_NUM + "/get";
-        final String post_url = "http://vpatro.me:" + PORT_NUM + "/call_log";
+        final String get_phone_num_url = "http://vpatro.me:" + PORT_NUM + "/get";
+        final String call_log_url = "http://vpatro.me:" + PORT_NUM + "/call_log";
 
         // Prepare the Request
-        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, get_url, null,
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, get_phone_num_url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         // display response
                         Log.d("Response", response.toString());
                         display_text.setText(response.toString());
-                        local_store(response);
+                        local_store("DATA_FILENAME", response);
                         display_text.setText("Sync Complete." + parse(response) + " updated.");
                         btn.setEnabled(true);
                     }
@@ -252,21 +272,21 @@ public class MainActivity extends ActionBarActivity {
 
         );
 
-        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, post_url, call_log_json,
+        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, call_log_url, call_log_json,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         // display response
                         Log.d("Response", response.toString());
                         display_text.setText(response.toString());
-//                        display_text.setText("Sync Complete." + parse(response) + " updated.");
+                        display_text.setText("Call Log Synced.");
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
-                        display_text.setText("Error: " + "Cannot connect to server + call_log.");
+                        display_text.setText("Error: " + "Cannot connect to server.");
                     }
                 }
 
@@ -282,13 +302,15 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void call(int block, int flat, int tel_num) {
-        String tel = "tel:" + get_phone_number(block, flat, tel_num);
+        String phone_num = Long.toString(get_phone_number(block, flat, tel_num));
+        String tel = "tel:" + phone_num;
 
         Intent phoneIntent = new Intent(Intent.ACTION_CALL);
         phoneIntent.setData(Uri.parse(tel));
 
         try {
             startActivity(phoneIntent);
+            addCallEntry(phone_num);
             finish();
             Log.i("Finished making a call...", "");
         } catch (android.content.ActivityNotFoundException ex) {
@@ -330,11 +352,10 @@ public class MainActivity extends ActionBarActivity {
     }
 
     protected void local_read() {
-//        String data_string = "hello world!";
         final TextView display_text = (TextView) findViewById(R.id.display);
 
         JSONObject data_json = file_to_JSON("DATA_FILENAME");
-        if (data_json.length() == 0) {
+        if (data_json.length() != 0) {
             String parse_response = parse(data_json);
             display_text.setText("Contacts for " + parse_response + " loaded.");
         } else {
@@ -343,10 +364,10 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    protected void local_store(JSONObject data) {
+    protected void local_store(String fileName, JSONObject data) {
 
         try {
-            FileOutputStream fos = openFileOutput("DATA_FILENAME", Context.MODE_PRIVATE);
+            FileOutputStream fos = openFileOutput(fileName, Context.MODE_PRIVATE);
             fos.write(data.toString().getBytes());
             fos.close();
         } catch (Exception e) {
@@ -438,5 +459,7 @@ public class MainActivity extends ActionBarActivity {
 
         // Commit the edits!
         editor.commit();
+
+        local_store("CALL_LOG", call_log_json);
     }
 }
