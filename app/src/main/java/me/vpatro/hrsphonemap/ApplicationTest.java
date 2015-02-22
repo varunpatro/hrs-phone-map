@@ -1,4 +1,4 @@
-package com.example.hrsphonemap;
+package me.vpatro.hrsphonemap;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
